@@ -230,7 +230,7 @@ task :move_list do
       puts "no current filename"
       break
     end
-    if !File.exists? name_old
+    if !File.exist? name_old
       puts "no file: #{item[list_column]}"
       next
     else
