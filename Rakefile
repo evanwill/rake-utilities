@@ -228,37 +228,65 @@ task :rename_by_csv, [:csv_file,:filename_current,:filename_new,:input_dir,:outp
 
 end
 
+
+
+
+###############################################################################
+# TASK: move_by_csv
+#
+# read csv, move files
+#
+###############################################################################
+
 # move by list
-desc "move objects from list"
-task :move_list do
+desc "move objects from csv list"
+task :move_by_csv, [:csv_file,:filename_current,:input_dir,:output_dir] do |_t, args|
+  # set default arguments
+  args.with_defaults(
+    csv_file: 'move.csv',
+    filename_current: 'filename',
+    input_dir: 'objects/',
+    output_dir: 'moved/'
+  )
 
-  # set the various directories to be used
-  start_dir = "rotated/renamed/"
-  end_dir = "rotated/renamed/representative/"
-  list_csv = "list.csv"
-  list_column = "filename"
+  # check for csv file
+  if !File.exist?(args.csv_file)
+    puts "CSV file does not exist! No files renamed and exiting."
+  else
+    # read csv file
+    csv_text = File.read(args.csv_file, :encoding => 'utf-8')
+    csv_contents = CSV.parse(csv_text, headers: true)
 
-  # open csv file
-  csv_text = File.read(list_csv, :encoding => 'utf-8')
-  csv_contents = CSV.parse(csv_text, headers: true)
+    # Ensure that the output directory exists.
+    FileUtils.mkdir_p(args.output_dir) unless Dir.exist?(args.output_dir)
 
-  # iterate on csv rows
-  csv_contents.each do |item|
-    if item[list_column]
-      name_old = start_dir + item[list_column]
-      name_new = end_dir + item[list_column]
-    else
-      puts "no current filename"
-      break
+    # iterate on csv rows
+    csv_contents.each do |item|
+      # check for filename
+      if item[args.filename_current]
+        name_old = File.join(args.input_dir, item[args.filename_current])
+      else
+        puts "no current filename given, skipping!"
+        next
+      end
+      # set new file name
+      name_new = File.join(args.output_dir, item[args.filename_current])
+      # check if old and new file exist
+      if !File.exist?(name_old)
+        puts "old file '#{name_old}' does not exist, skipping!"
+        next
+      end
+      if File.exist?(name_new)
+        puts "new filename '#{name_new}' already exists, skipping!"
+        next
+      end
+      # move the file by copying
+      puts "copying: '#{name_old}' to '#{name_new}'"
+      system('cp', name_old, name_new)
     end
-    if !File.exist? name_old
-      puts "no file: #{item[list_column]}"
-      next
-    else
-      puts "copying: '#{name_old}' to '#{end_dir}'"
-      cp_cmd = "cp \"#{name_old}\" \"#{name_new}\""
-      system( cp_cmd )
-    end
+    
+    puts "done moving."
+
   end
 
 end

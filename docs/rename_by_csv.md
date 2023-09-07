@@ -8,7 +8,7 @@ Using defaults:
 - Put your files into the "objects" folder.
 - Put your "rename.csv" into the root of this repository (i.e. same place as the Rakefile).
 - Open terminal and type `rake rename_by_csv`
-- Items included in the "rename.csv" will be copied, renamed, and output in the new folder "renamed/".
+- Items included in the "rename.csv" will be copied, renamed, and output in the new folder "renamed/". (nothing will be deleted!)
 
 The options can be changed by passing arguments with the rake command.
 
