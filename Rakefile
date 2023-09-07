@@ -238,7 +238,6 @@ end
 #
 ###############################################################################
 
-# move by list
 desc "move objects from csv list"
 task :move_by_csv, [:csv_file,:filename_current,:input_dir,:output_dir] do |_t, args|
   # set default arguments
@@ -291,33 +290,53 @@ task :move_by_csv, [:csv_file,:filename_current,:input_dir,:output_dir] do |_t, 
 
 end
 
-# rename lowercase
+
+
+
+###############################################################################
+# TASK: rename_lowercase
+#
+# copy files, rename all files to lowercase
+#
+###############################################################################
+
 desc "rename lowercase"
-task :rename_lowercase do
+task :rename_lowercase, [:input_dir,:output_dir] do |_t, args|
+  # set default arguments
+  args.with_defaults(
+    input_dir: 'objects/',
+    output_dir: 'renamed/'
+  )
 
-  # set the various directories to be used
-  start_dir = "rotated/"
-  end_dir = "rotated/renamed/"
+  # ensure input directory exists
+  if !Dir.exist?(args.input_dir)
+    puts "Input folder does not exist!"
+    break
+  end
 
+  # ensure that the output directory exists.
+  FileUtils.mkdir_p(args.output_dir) unless Dir.exist?(args.output_dir)
+  
   # Generate derivatives.
-  Dir.glob(File.join([start_dir, '*'])).each do |filename|
+  Dir.glob(File.join([args.input_dir, '*'])).each do |filename|
     # Ignore subdirectories.
     if File.directory? filename
-      next
-    end
-    # Ignore readme.
-    if filename == File.join([start_dir, 'README.md'])
       next
     end
 
     # Get the lowercase filename 
     name_old = filename
-    name_new = end_dir + File.basename(filename).downcase
-    #base_filename = File.basename(filename).downcase
+    name_new = File.join(args.output_dir, File.basename(filename).downcase)
 
-    puts "copying: '#{filename}' to '#{end_dir}'"
-    cp_cmd = "cp \"#{name_old}\" \"#{name_new}\""
-    system( cp_cmd )
+    # check if file already exists
+    if File.exist?(name_new)
+      puts "new filename '#{name_new}' already exists, skipping!"
+      next
+    end
+
+    # copy file
+    puts "renaming: '#{name_old}' to '#{name_new}'"
+    system('cp', name_old, name_new)
 
   end
 end
