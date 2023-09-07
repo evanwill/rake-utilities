@@ -1,7 +1,10 @@
 # download_by_csv
 
 `rake download_by_csv` allows you to download a list of files from a CSV using Wget.
+
 Please ensure you have Wget installed and available on your terminal!
+Check by typing `wget --version` in your terminal. 
+If you need to install on Windows, see [Add more to Git Bash](https://evanwill.github.io/_drafts/notes/gitbash-windows.html).
 
 Requirements:
 
